@@ -29,7 +29,7 @@ def save_data(data, start_date, end_date):
             f.write(str(amount) + "위. " + data[0] + " - " + str(data[1]) + "개\n")
     f.close()
 
-def crawl_data(start_data, end_date):
+def crawl_data(start_data, end_date, type):
     exceptions = ["공지", "설문", "이슈"]
     data = []; page = start_data[1]; total = 0
     while 1:
@@ -41,7 +41,8 @@ def crawl_data(start_data, end_date):
                 gall_date = i.find(class_="gall_date")
                 gall_num = i.find(class_="gall_num")
                 gall_writer = i.find(class_="gall_writer ub-writer").text.strip()
-                gall_writer = re.sub("\(\d+\.\d+\)", "", gall_writer)
+                if type == "Y":
+                    gall_writer = re.sub("\(\d+\.\d+\)", "", gall_writer)
 
                 if gall_date.text == end_date:
                     return data
@@ -82,6 +83,8 @@ if __name__=='__main__':
     print("펌갤 전용 갤창인생 순위 제조기\nMade by qwertycvb\n")
     end_date = input("집계 시작 일자 [Ex.(19/01/01)] : ")
     start_date = input("집계 종료 일자 [Ex.(19/01/31)] : ")
+    type = input("\n유동닉 IP 제거 [Ex. ㅇㅇ(xxx.xx) -> ㅇㅇ] (Y / N) : ")
+    type = type.upper()
     print()
 
     current_date = datetime.now()
@@ -101,7 +104,7 @@ if __name__=='__main__':
         start_date = str("%2s/%02d/%02d" % (str(start_date.year)[2:], start_date.month, start_date.day))
 
     start_data = find_num(start_date)
-    data = crawl_data(start_data, end_date)
+    data = crawl_data(start_data, end_date, type)
     save_data(data, start_date, org_end_date)
     print_status(len(data), " ", 1)
     os.system("pause")
