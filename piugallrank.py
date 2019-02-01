@@ -12,14 +12,14 @@ url = 'http://gall.dcinside.com/board/lists/?id=pumpitup&list_num=100&page='
 path = (os.path.dirname(os.path.realpath(__file__)))
 
 def save_data(data, start_date, end_date):
-    d = datetime.today()
     result = Counter(data).most_common()
 
     amount = 0
     share = 0
 
     f = open(path + "/펌갤창순위.txt", 'w', encoding="utf-8")
-    f.write(str(d.year) + "-" + end_date[:2] + "-" + end_date[3:] + "부터 " + str(d.year) + "-" + start_date[:2] + "-" + start_date[3:] + "까지 집계된 " + str(len(data)) + "개의 게시글 기준" "\n\n")
+    f.write("%d-%02d-%02d부터 %d-%02d-%02d까지 집계된 %s개의 게시글 기준\n\n" %
+            (end_date.year, end_date.month, end_date.day, start_date.year, start_date.month, start_date.day, str(len(data))))
     for data in result:
         if share != data[1]:
             f.write(str(result.index(data) + 1) + "위. " + data[0] + " - " + str(data[1]) + "개\n")
@@ -89,22 +89,21 @@ if __name__=='__main__':
 
     current_date = datetime.now()
 
-    org_end_date = end_date
-    end_date = datetime(2000 + int(end_date[:2]), int(end_date[3:5]), int(end_date[6:8]), 0, 0, 0)
-    end_date = end_date - timedelta(days=1)
+    end_date_d = datetime(2000 + int(end_date[:2]), int(end_date[3:5]), int(end_date[6:8]), 0, 0, 0)
+    end_date = end_date_d - timedelta(days=1)
     if end_date.year == current_date.year:
         end_date = str("%02d/%02d" % (end_date.month, end_date.day))
     else:
         end_date = str("%2s/%02d/%02d" % (str(end_date.year)[2:], end_date.month, end_date.day))
 
-    start_date = datetime(2000 + int(start_date[:2]), int(start_date[3:5]), int(start_date[6:8]), 0, 0, 0)
-    if start_date.year == current_date.year:
-        start_date = str("%02d/%02d" % (start_date.month, start_date.day))
+    start_date_d = datetime(2000 + int(start_date[:2]), int(start_date[3:5]), int(start_date[6:8]), 0, 0, 0)
+    if start_date_d.year == current_date.year:
+        start_date = str("%02d/%02d" % (start_date_d.month, start_date_d.day))
     else:
-        start_date = str("%2s/%02d/%02d" % (str(start_date.year)[2:], start_date.month, start_date.day))
+        start_date = str("%2s/%02d/%02d" % (str(start_date_d.year)[2:], start_date_d.month, start_date_d.day))
 
     start_data = find_num(start_date)
     data = crawl_data(start_data, end_date, type)
-    save_data(data, start_date, org_end_date)
+    save_data(data, start_date_d, end_date_d)
     print_status(len(data), " ", 1)
     os.system("pause")
